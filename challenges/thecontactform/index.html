@@ -5,10 +5,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>The Contact Form</title>
+	
+	<!-- JQuery --> 
+	<script src="http://code.jquery.com/jquery.js"></script>	
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+	
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	
+	<!-- Validator -->
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.1/css/bootstrapValidator.min.css"/>
+		
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.1/js/bootstrapValidator.min.js"></script>
 
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -22,7 +32,7 @@
 
           <h1>The Contact Form</h1>
 
-          <form role="form">
+          <form role="form" id="contactForm" action="" method = "POST">
             <div class="form-group">
               <label for="inputName">Name</label>
               <input type="password" class="form-control" id="inputName" name="name" placeholder="Enter name">
@@ -36,7 +46,7 @@
             <div class="form-group">
               <label for="inputDepartment">Department</label>
               <select name="department" id="inputDepartment" class="form-control">
-                <option value="0">Select a Department</option>
+                <option value="0" selected disabled>Select a Department</option>
                 <option value="sales">Sales</option>
                 <option value="hr">HR</option>
                 <option value="complaints">Complaints</option>
@@ -47,11 +57,106 @@
               <label for="inputComment">Comment</label>
               <textarea class="form-control" rows="3" name="comment" id="inputComment"></textarea>
             </div>
-
-            <button type="submit" class="btn btn-default">Submit</button>
-          </form>
-        </div>
+		
+            <button type="submit" class="btn btn-default" >Submit</button>
+			<p>
+			  <div class="alert alert-success" id="success" style="display:none;">
+			 	<a href="#" class="close" data-dismiss="alert">&times;</a>
+				<strong>Success!</strong> Your message has been sent successfully.
+			  </div>
+			  <div id="alertSuccess" class="alert alert-success fade in hide" role="alert">
+			    <p>Submission Successful!</p>
+			  </div>
+			  <div id="alertFailure" class="alert alert-danger fade in hide" role="alert">
+			    <p>Please fix the listed issues with the form</p>
+			  </div>
+			</p>
+          </form>			  
+        </div>			
       </div>
     </div>
+  <script>
+    /*Validator function*/
+    $(document).ready(function() 
+	{
+	  $('#contactForm').bootstrapValidator( 
+	  {
+		/*Alert for success*/
+		onSuccess: function(e) 
+		{
+		  $('#alertSuccess').removeClass('hide').alert();
+		  $('#alertFailure').addClass('hide').alert();
+		},
+		/*Alert for failure*/
+		onError: function(e) 
+		{
+		  $('#alertFailure').removeClass('hide').alert();
+		  $('#alertSuccess').addClass('hide').alert();
+		},		
+		live: 'disabled',
+		/* Field Validation */
+	    fields: 
+		{
+		  name: 
+		  {
+		    validators: 
+			{
+			  notEmpty: 
+			  {
+			    message: 'Name required'
+			  }
+			}
+		  },
+		  email:
+		  {
+		    validators:
+			{
+			  notEmpty:
+			  {
+				message: 'E-mail required'
+			  },
+			  emailAddress:
+			  {
+				message: 'Valid e-mail address required'
+			  }
+			}
+		  },
+		  department:
+		  {
+		    validators:
+			{
+			  notEmpty:
+			  {
+			    message: 'Select a department'
+			  }
+			}
+		  },
+		  comment:
+		  {
+		    validators:
+			{
+			  notEmpty:
+			  {
+			    message: "'Comments' field must contain a minimum of 3 words"
+			  },
+			  regexp: 
+			  {
+			    regexp: /\s*[A-Za-z0-9_.,!"'/$]+\s+[A-Za-z0-9_.,!"'/$]+\s+[A-Za-z0-9_.,!"'/$]+.*/,
+			    message: "'Comments' field must contain a minimum of 3 words"
+			  }
+			}
+		  }
+		}
+	  })
+	  /* On successful submit, send AJAX POST request*/
+	  .on('success.form.bv', function(e) {
+	    e.preventDefault();
+		var $form = $(e.target);
+		var bv = $form.data('bootstrapValidator');
+		$.post($form.attr('action'), $form.serialize(), function(result){  
+		}, 'json');
+	  });
+	});	
+  </script>
   </body>
 </html>
